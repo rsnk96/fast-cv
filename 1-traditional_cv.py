@@ -1,41 +1,53 @@
 import cv2
 import sys
+import time
+import argparse
 import numpy as np
 from subprocess import Popen
-import time
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input_file", default="Kiiara.mp4", type=str)
+    parser.add_argument("--x264", default=False, type=bool)
+    parser.add_argument("--extra_flags", default="", type=str)
+    args = parser.parse_args()
 
-start_time = time.time()
+    start_time = time.time()
+    cap = cv2.VideoCapture(args.input_file)
+    width, height, end_frame = (
+        int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+        int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+        cap.get(cv2.CAP_PROP_FRAME_COUNT),
+    )
+    out = cv2.VideoWriter(
+        "output_method1.avi",
+        cv2.VideoWriter_fourcc(*"MJPG"),
+        cap.get(cv2.CAP_PROP_FPS),
+        (width, height),
+    )
 
-if len(sys.argv)>1:
-    cap = cv2.VideoCapture(sys.argv[1])
-else:
-    cap = cv2.VideoCapture('Kiiara.mp4')
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if ret == False:
+            break
+        frame[: height // 2, : width // 2, 1:] = 0
+        frame[: height // 2, width // 2 :, [2, 0]] = 0
+        frame[height // 2 :, width // 2 :, :2] = 0
+        out.write(frame)
 
-width, height, end_frame = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),cap.get(cv2.CAP_PROP_FRAME_COUNT)
-if len(sys.argv)>2:
-    cap.set(cv2.CAP_PROP_POS_FRAMES, sys.argv[2])
-    end_frame=sys.argv[3]
+    cap.release()
+    out.release()
 
+    if args.x264 == True:
+        ffmpeg_command = "ffmpeg -y -loglevel warning -i output_method1.avi -vcodec libx264 {} output_method1.mp4".format(
+            args.extra_flags
+        )
+        t2 = time.time()
+        Popen(ffmpeg_command, shell=True).wait()
+    t3 = time.time()
 
-out = cv2.VideoWriter('output_method1.avi',cv2.VideoWriter_fourcc(*'MJPG'), cap.get(cv2.CAP_PROP_FPS), (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))) 
-
-while(cap.isOpened()):
-    ret,frame = cap.read()
-    if ret==False:
-        break
-    frame[:height//2, :width//2, 1:] = 0
-    frame[:height//2, width//2:, [2,0]] = 0
-    frame[height//2:, width//2:, :2] = 0
-    out.write(frame)
-
-cap.release()
-out.release()
-
-t2 = time.time()
-Popen('ffmpeg -y -loglevel warning -i output_method1.avi -vcodec libx264 output_method1.mp4', shell=True).wait()
-t3 = time.time()
-Popen('ffmpeg -y -loglevel warning -i output_method1.avi -vcodec libx264 -preset ultrafast output_method1.mp4', shell=True).wait()
-t4 = time.time()
-
-print('Method {}: Time taken avi output: {} and mp4 output:{} and ultrafast mp4 output:{}\n\n'.format(sys.argv[0], t2-start_time, t3-start_time, t4-t3+t2-start_time))
+    print(
+        "\nMethod {}: Input:{}, x264:{}, extra_flags:{}, Time taken: {}".format(
+            sys.argv[0], args.input_file, args.x264, args.extra_flags, t3 - start_time
+        )
+    )
