@@ -59,7 +59,7 @@ if __name__ == "__main__":
         for t in transport_streams:
             f.write("file {} \n".format(t))
 
-    ffmpeg_command = "ffmpeg -y -loglevel warning -f concat -safe 0 -i intermediate_files.txt {}".format(
+    ffmpeg_command = "ffmpeg -y -loglevel error -f concat -safe 0 -i intermediate_files.txt {}".format(
         args.extra_flags
     ).strip()
     if args.x264 == False:

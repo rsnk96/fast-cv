@@ -10,7 +10,7 @@ import multiprocessing as mp
 
 # encode_buf_size = psutil.virtual_memory()[4]*0.5//num_processes
 def process_video(group_number):
-    cap = cv2.VideoCapture(input_file)
+    cap = cv2.VideoCapture(args.input_file)
     cap.set(cv2.CAP_PROP_POS_FRAMES, frame_jump_unit * group_number)
     proc_frames = 0
     FIFO_PATH = FIFO_PATHs[group_number]
@@ -40,12 +40,11 @@ if __name__ == "__main__":
     start_time = time.time()
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_file", default="Kiiara.mp4", type=str)
-    parser.add_argument("--part_extension", choices=["mp4", "ts"], default="mp4")
     parser.add_argument("--extra_flags", default="", type=str)
     args = parser.parse_args()
     num_processes = mp.cpu_count()
 
-    cap = cv2.VideoCapture(input_file)
+    cap = cv2.VideoCapture(args.input_file)
     frame_jump_unit = cap.get(cv2.CAP_PROP_FRAME_COUNT) // num_processes
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -70,6 +69,7 @@ if __name__ == "__main__":
         "-r", str(fps),  # frames per second
         "-i", "-",  # The imput comes from a pipe
         "-an",  # Tells FFMPEG not to expect any audio
+        "-r", str(fps),
         "-vcodec", "libx264",
         "-f", "mpegts", ]
     command.extend(args.extra_flags.split())
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     r = p.map_async(process_video, range(num_processes))
 
     sp.Popen(
-        'ffmpeg -y -fflags +igndts -loglevel warning -f mpegts -i "concat:{}" -an -vcodec copy {}} output_method4.mp4'.format(
+        'ffmpeg -y -loglevel warning -f mpegts -i "concat:{}" -an -vcodec copy -use_wallclock_as_timestamps 1 {} output_method4.mp4'.format(
             "|".join(FIFO_PATHs), args.extra_flags
         ),
         shell=True,
@@ -88,8 +88,7 @@ if __name__ == "__main__":
     t2 = time.time()
 
     print(
-        "Method {}: Time taken default: {} and ultrafast preset:{}".format(
-            sys.argv[0], t2 - start_time, t3 - t2
+        "Method {}: Input:{}, extra_flags:{}, Time taken: {}".format(
+            sys.argv[0], args.input_file, args.extra_flags, t2 - start_time
         )
     )
-
