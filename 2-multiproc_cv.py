@@ -54,9 +54,9 @@ if __name__ == "__main__":
     p = mp.Pool(num_processes)
     p.map(process_video, range(num_processes))
 
-    transport_streams = ["{}.{}".format(i, args.extension) for i in range(num_processes)]
+    intermediate_files = ["{}.{}".format(i, args.extension) for i in range(num_processes)]
     with open("intermediate_files.txt", "w") as f:
-        for t in transport_streams:
+        for t in intermediate_files:
             f.write("file {} \n".format(t))
 
     ffmpeg_command = "ffmpeg -y -loglevel error -f concat -safe 0 -i intermediate_files.txt {}".format(
@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
     from os import remove
 
-    for f in transport_streams:
+    for f in intermediate_files:
         remove(f)
     remove("intermediate_files.txt")
     print(
