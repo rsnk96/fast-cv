@@ -1,34 +1,93 @@
-@title[Piping the Parallelism out of Python]
+@title[Efficient Video Processing]
 #### Piping the Parallelism out of Python
 ## Efficient Video Processing
 
 @size[0.5](_R S Nikhil Krishna_)
 
-@size[0.5](_T Lokesh Kumar_)
+
+---
+@transition[fade-out]
+@snap[north]
+## Why Bother?
+@snapend
+* 2009: Youtube announces 1080p,      30  fps support
+* 2015: Youtube annonces  8k (4320p), 60  fps support
+* 2016: AMD     announces 16k (8640p),240 fps support for VR data
+
+<font size="1">AMD announces 16k support: https://www.tweaktown.com/news/53163/amd-radeon-pro-graphics-card-powers-16k-display-15-360-8640/index.html</font>
+
+
+
++++
+@transition[fade]
+## Why Bother?
+`\begin{align}
+\small{\text{Demand}} & = \tiny{\frac{(7680 \times 4320) \times 120 \ \text{[2018]} }{(1280 \times 720) \times 60 \ \text{[2009]} }} & = 72\text{x} \\
+\small{\text{Supply}} & = \tiny{\frac{3 \ \textrm{TB} \quad \text{[2018]} }{500 \ \textrm{GB} \quad \text{[2009]} }} & = 6\text{x} \\
+\tiny{ \text{(HDD Capacityfor 100 USD)}} &  & 
+\end{align}`
+
+![shock](https://pa1.narvii.com/6913/8b28b2536160f3d35a3153febcc17ba792d6f28er1-500-271_hq.gif)
+
+
++++
+### The Problem
+![comic-about-video-challenges](https://image.ibb.co/bK5A2z/vid_targets.jpg)
 
 
 ---
 @title[Computer Vision]
 # Computer Vision
 
+
 +++?image=https://d.ibtimes.co.uk/en/full/1469739/vision-age-ultron.jpg
-
 @ul
-
-* @color[white](Vision)
+* @fa[desktop white] @color[white](Vision ?)
 * @fa[times fa-3x white]
-
 @ulend
+
+
++++
+## Images
+![image-to-pixels](https://media.giphy.com/media/YUxfQeQSLpCU0wT9fA/giphy.gif)
+
 
 +++
 ## Images in Python
-
-* (Show zooming into pixels)
 * Commonly used: OpenCV, scikit-image, PIL
-* Command:
-  `cv2.imread('cool_file_name.jpg')`
+* Reading an image in Python using OpenCV
+  ```python
+  cv2.imread('cool_file_name.jpg')
+  ```
+* Standard: Handle images as numpy array
 
-* Irrespective of which library you use, the image reading function normally returns a numpy array
+
++++
+## Videos
+@ul
+* 28x28 grayscale image @fa[long-arrow-right] 784 bytes
+* 1080p Song (300 seconds) @fa[long-arrow-right] `\[ \tiny{\frac{(1080 \times 1920 \times 3) \times (30 \times 300)}{10^9}} ~= \Large{56\ \text{GB}} \]` ![shock](https://girlsarethenewboys.files.wordpress.com/2018/03/what-say-what-dafuq-wtf-what-the-fuck-gif.gif)
+@ulend
+
+@transition[none]
+@snap[north-east]
+<img src="https://media.giphy.com/media/YUxfQeQSLpCU0wT9fA/giphy.gif" width=125 />
+@snapend
+
+Note:
+* Vid: Flipbook example
+* Vid proc not by loading all frames
+* To understand, we've to first understand how videos are stored
+
++++
+## Videos
+![codecs-containers](http://apress.jensimmons.com/v4/images/ch4/fig4-1.png)
+
+Note:
+* For same container, ANY ONE of 10-20 different CODECs can be used
+* Codec choice will affect both file size and quality
+* The Big Problem: All of those Python computer vision libraries we looked at earlier don't support writing in most codecs. So if you are an industry where you need to, say Analyse Videos and Provide Insights to your customers from the video, then you might be hugely discouraged from using Python in the first place because of this.
+
 
 +++
 ## Videos in Python
@@ -36,39 +95,23 @@
   ```python
   cap = cv2.VideoCapture('file.mp4')
   ```
-- Read frames and handle them as normal images (numpy arrays) with |
+* Read frames and handle them as normal images (numpy arrays) with |
   ```python
   ret, frame = cap.read()
   ```
 
-+++
-## How Videos are stored
-
-![codecs-containers](http://apress.jensimmons.com/v4/images/ch4/fig4-1.png)
-
-
-+++
-## OpenCV Codecs
-
-@ul
-
-- If OpenCV detects other backends during build, could preferentially select them as the default backend
-- On Linux, V4L is given preference over FFmpeg ==> Problems with H.264 (replace arrow with @fa)
-- Generally works:
-  - 'MJPG' fourcc (codec) with 'avi' extension (container)
-  - 'mp4v' fourcc (codec) with 'mp4' extension
-
-@ulend
-
-
 +++?image=https://lh3.googleusercontent.com/v1u2eM8qNz2YrzC5E76yjA1xAF-FsrCuB7o6JPm5qQNcH-eccUi_KAYcsQdJ7IazoI5bZZ4fXeBty84w66wUzaUL85_g3sMuJqNrbMnVc3RF_B7K6Aic3HbJSsu_gBD-UhkcrCI2
 
-+++?image=http://dzceab466r34n.cloudfront.net/StreamingMedia/ArticleImages/InlineImages/108157-Netflix-HEVC-ORG.png
-https://github.com/Netflix/vmaf
 
-
-+++?image=https://cnet4.cbsistatic.com/img/2018/03/28/f9e54051-4fc0-4431-add8-22c75dd2a0f9/aomedia-av1-roadmap.jpg
-
++++
+## Modern Codecs
+<div class="left">
+![x265](http://dzceab466r34n.cloudfront.net/StreamingMedia/ArticleImages/InlineImages/108157-Netflix-HEVC-ORG.png)
+</div>
+<div class="right">
+![av1](https://cnet4.cbsistatic.com/img/2018/03/28/f9e54051-4fc0-4431-add8-22c75dd2a0f9/aomedia-av1-roadmap.jpg)
+</div>
+<font size=1>https://github.com/Netflix/vmaf</font>
 
 
 ---
@@ -76,66 +119,127 @@ https://github.com/Netflix/vmaf
 # FFmpeg
 
 
-
 +++
 ## FFmpeg
-
 @ul
-
 * The Cross-Platform Multimedia Swiss-Knife
-* Used by VLC. Youtube (controversial), etc
-* Efficiently uses your hardware
+* Used by VLC, Youtube (controversial), etc
 * For Ubuntu 15.04+, you can just run `sudo apt-get install ffmpeg`
-
 @ulend
+
+Note:
+* Youtube controversy: FFmpeg has GPL license, so you don't need to openly claim that you use it. contributors to FFmpeg made a bug in the processing pipeline, not a fatal bug. Same bug shows up in FFmpeg too
+
++++
+## Why, though?
+* Efficiently uses your hardware
+    <div class="left">
+    ![normal-cv-htop](https://preview.ibb.co/nCYV2z/normal_cv_htop.png)
+    </div>
+    <div class="right">
+    ![ffmpeg-htop](https://image.ibb.co/kb0zvK/ffmpeg_htop.png)
+    </div>
+    
+* Supports most modern day codecs (BIG win over OpenCV)
+
 
 +++
 ## Usage
-
 ```
 ffmpeg -i  input.avi  output.mp4 
                       cool_output.gif
                       audio_ripper.mp3
                       frame%d.jpg
-                      ffmpeg -codecs
-                             -formats
-```
 
-+++
-## Piping FFmpeg into Python
+ffmpeg -codecs
+       -formats
+```
 
 
 +++
 ## Trouble in Paradise
+* Adding a filter to ffmpeg is non-trivial
+  * Lot of callback functions to define:
+    ```python
+    init(), uninit(), query_formats(), config_props(), filter_frame()
+    ```
+  * You have to code in `C`
+* What if we want to do more than just adding a filter?
 
+<font size="2">Source: https://github.com/FFmpeg/FFmpeg/blob/master/doc/writing_filters.txt</font>
+
+Note:
+* Any industry dealing in just giving clients videos ==>  more than basic filters.
+* ffmpeg accessible through terminal only==> pipe the data from numpy to ffmpeg from within Python
+
+
++++
+## Piping Numpy arrays into FFmpeg
+Setting up the pipe for a `460`x`360` input in the format BGR,BGR,BGR
+```python
+command = [ 'ffmpeg',
+          '-f', 'rawvideo', '-vcodec','rawvideo',
+          '-s', '420x360', # size of one frame
+          '-pix_fmt', 'bgr24',
+          '-r', '24', # frames per second
+          '-i', '-', # The imput comes from a pipe
+          '-an', # Tells FFMPEG not to expect any audio
+          '-vcodec', 'libx265',
+          'my_output_videofile.mp4' ]
+
+pipe = sp.Popen( command, stdin=sp.PIPE, stderr=sp.PIPE)
+```
+
+
++++
+## Piping Numpy arrays into FFmpeg
+Now, to write frames,
+```python
+pipe = sp.Popen(command, stdin=sp.PIPE,stderr=sp.PIPE)
+while (cap.isOpened()):
+  ret, frame = cap.read()
+  # Do some stuff
+  pipe.proc.stdin.write( my_image_array.tostring() )
+```
+
+Read Zulko's blog for more
+<font size="2">Source: http://zulko.github.io/blog/2013/09/27/read-and-write-video-frames-in-python-using-ffmpeg/</font>
+
+Note:
+* sp is subprocess lib
+* What these 3 - 4 lines do: Let you access SotA codecs from within Python
+
+
++++?image=https://preview.ibb.co/nBgbee/avi.png
+
++++?image=https://preview.ibb.co/k7JHkK/h264.png
+@transition[none]
 
 ---
-@title[Parallelism in Python]
-# Parallelism in Python
+@title[Parallelism in Video Processing]
+# Parallelism in Video Processing
+
 
 +++
 ## Let's get some stuff straight first
 * Concurrency != Parallelism
-* Multithreading - only useful if interfacing IO devices
-* For processing already existing files, multitheading is awful, go for multiprocessing
-
-Note:
-
-* Concurrency: Multiple tasks running interleaved
-* Parallelism: Multiple tasks running at the same time
-* Concurrency - what lets Windows run many applications at the same time
-
-+++
-## Python multiprocessing library
-
-@ul
-
-* Circumvents the GIL for CPU ops
-* Can allow for data/memory sharing
-* CPython only
+* Multithreading - generally useful only when interfacing w/ IO devices
+* For processing existing files, multithreading is awful, go for multiprocessing
 * Processes are more "heavy-weight", can be slow to start compared to threads
 
+Note:
+* FFmpeg speeds up processing by parallelizing the processing of each frame, rather than parallelizing across frames. But parallelizing across frames is a much more fundamental approach, if you think about it, you handle each frame independently.
+
+
++++?image=https://media.giphy.com/media/pzAU8uEKFcRAsTjdKQ/giphy.gif
+@ul
+* @fa[times fa-4x black]
 @ulend
+
+Note:
+* Video compression is generally inter-frame, so we store some key frames and note how successive frames differ from the previous ones.
+
++++?image=https://media.giphy.com/media/2lh9grOpTCXnaP3zgw/giphy.gif
 
 
 +++
@@ -148,24 +252,26 @@ Note:
       ret, frame = cap.read()
       if ret == False:
         break
+      # ... do some stuff ...
       out.write(frame)
+  
+  process_video()
 ```
-
 
 
 +++
 ### CV - The multiprocessing way
-
 ```python
   def process_video(group_number):
     cap = cv2.VideoCapture("input_file.mp4")
-    cap.set(cv2.CAP_PROP_POS_FRAMES, frame_jump_unit * group_number)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, frame_jump * group_number)
     proc_frames = 0
     out = cv2.VideoWriter("output_{}.avi".format(group_number), ...)
-    while proc_frames < frame_jump_unit:
+    while proc_frames < frame_jump:
       ret, frame = cap.read()
       if ret == False:
         break
+      # ... do some stuff ...
       out.write(frame)
     out.release()
     return None
@@ -173,7 +279,7 @@ Note:
   import multiprocessing as mp
   num_processes = mp.cpu_count()
   cap = cv2.VideoCapture("input_file.mp4")
-  frame_jump_unit = cap.get(cv2.CAP_PROP_FRAME_COUNT) // num_processes
+  frame_jump = cap.get(cv2.CAP_PROP_FRAME_COUNT) // num_processes
   cap.release()
 
   p = mp.Pool(num_processes)
@@ -187,400 +293,66 @@ Note:
   sp.Popen(ffmpeg_command, shell=True).wait()
 ```
 
-@[14-16](Number of parallel sub-processes)
-@[17](Number of frames for each sub-process to process)
-@[1-12](We modify the original function a bit)
-@[1,3,4](The critical changes)
-@[20-21](And now we parallelize the processing of the video)
-@[23-28](Merge the videos)
 
-
----
-@title[Putting it all together]
-# The Grand Finale
+@[15-16](Number of parallel sub-processes)
+@[18](Number of frames for each sub-process to process)
+@[1-13](We modify the original function a bit)
+@[1,3-6](The important changes)
+@[21-22](And now we parallelize the processing of the video)
+@[24-29](Merge the videos)
 
 
 +++
-## Results
+The `# ... do some stuff ...` :
+<table border=0>
+  <tr>
+    <td>![original-image](https://image.ibb.co/hvGqTK/og.png)</td>
+    <td valign="middle">@fa[long-arrow-right]</td>
+    <td>![changed-image](https://image.ibb.co/i4wDhe/changed.png)</td>
+  </tr>
+</table>
+
+Note:
+* Even for a small 640p video(pic), we can see significant speed-ups
+* Speed up of ~2.3x on 2 core machine with just 10 extra lines of code
+* Also note that in this method, we've completely stayed within Python, without coming out unlike piping into FFmpeg
 
 
 +++
-## Python Pipers
-
-
----?image=http://quotesideas.com/wp-content/uploads/2015/10/mMaddc0.jpg
-
-
----
-@title[Theme Switcher]
-
-## Slideshow Theme Switcher
-<span style="font-size:0.6em; color:gray">Available inside burger-menu.</span> |
-<span style="font-size:0.6em; color:gray">Start switching themes right now!</span>
-
----
-@title[Go Fullscreen]
-
-## Tip!
-For the *best viewing experience*   
-press **F** key to go fullscreen.
-
----
-
-## Markdown Slides
-<span style="font-size:0.6em; color:gray">Press Down key for details.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Slide-Markdown) for details.</span>
-
-@fa[arrow-down]
-
-+++
-@title[GFM]
-
-#### Use GitHub Flavored Markdown
-#### For Slide Content Creation
-
-<br>
-
-The *same syntax* you use to create project   
-**READMEs** and **Wikis** for your Git repos.
-
----
-
-## Code Presenting
-## Repo Source Files
-<span style="font-size:0.6em; color:gray">Press Down key for examples.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Code-Presenting) for details.</span>
-
-@fa[arrow-down]
-
-+++?code=src/go/server.go&lang=golang&title=Source: Golang File
-
-@[1,3-6](Present code found within any repo source file.)
-@[8-18](Without ever leaving your slideshow.)
-@[19-28](Using GitPitch code-presenting with (optional) annotations.)
-
----
-@title[Present Static Block]
-
-## Code Presenting
-## Static Source Blocks
-<span style="font-size:0.6em; color:gray">Press Down key for examples.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Code-Presenting) for details.</span>
-
-@fa[arrow-down]
-
-+++
-<p><span class="menu-title slide-title">Source: JavaScript Block</span></p>
-
-```javascript
-// Include http module.
-var http = require("http");
-
-// Create the server. Function passed as parameter
-// is called on every request made.
-http.createServer(function (request, response) {
-  // Attach listener on end event.  This event is
-  // called when client sent, awaiting response.
-  request.on("end", function () {
-    // Write headers to the response.
-    // HTTP 200 status, Content-Type text/plain.
-    response.writeHead(200, {
-      'Content-Type': 'text/plain'
-    });
-    // Send data and end response.
-    response.end('Hello HTTP!');
-  });
-
-// Listen on the 8080 port.
-}).listen(8080);
-```
-
-@[1,2](You can present code inlined within your slide markdown too.)
-@[9-17](Displayed using code-syntax highlighting just like your IDE.)
-@[19-20](Again, all of this without ever leaving your slideshow.)
-
----
-@title[Present GIST]
-
-## Code Presenting
-## GitHub GIST
-<span style="font-size:0.6em; color:gray">Press Down key for examples.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Code-Presenting) for details.</span>
-
-@fa[arrow-down]
-
-+++?gist=onetapbeyond/494e0fecaf0d6a2aa2acadfb8eb9d6e8&lang=Scala&title=Source: Scala GIST
-
-@[23](You can even present code found within any GitHub GIST.)
-@[41-53](GIST source code is beautifully rendered on any slide.)
-@[57-62](Code-presenting works seamlessly both online and offline.)
-
----
-@title[Embed Images]
-
-## Image Slides
-## [ Inline ]
-<span style="font-size:0.6em; color:gray">Press Down key for examples.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Image-Slides) for details.</span>
-
-@fa[arrow-down]
-
-+++
-
-#### Make A Visual Statement
-
-<br>
-
-Use inline images to lend   
-a *visual punch* to your slideshow presentations.
-
-
-+++
-@title[Private Investocat]
-
-<span style="color:gray; font-size:0.7em">Inline Image at <b>Absolute URL</b></span>
-
-![Image-Absolute](https://d1z75bzl1vljy2.cloudfront.net/kitchen-sink/octocat-privateinvestocat.jpg)
-
-
-<span style="color:gray; font-size: 0.5em;">the <b>Private Investocat</b> by [jeejkang](https://github.com/jeejkang)</span>
-
-
-+++
-@title[Octocat De Los Muertos]
-
-<span style="color:gray; font-size:0.7em">Inline Image at GitHub Repo <b>Relative URL</b></span>
-
-![Image-Absolute](assets/octocat-de-los-muertos.jpg)
-
-<span style="color:gray; font-size:0.5em">the <b>Octocat-De-Los-Muertos</b> by [cameronmcefee](https://github.com/cameronmcefee)</span>
-
-
-+++
-@title[Daftpunktocat]
-
-<span style="color:gray; font-size:0.7em"><b>Animated GIFs</b> Work Too!</span>
-
-![Image-Relative](https://d1z75bzl1vljy2.cloudfront.net/kitchen-sink/octocat-daftpunkocat.gif)
-
-<span style="color:gray; font-size:0.5em">the <b>Daftpunktocat-Guy</b> by [jeejkang](https://github.com/jeejkang)</span>
-
----
-@title[Background Images]
-
-## Image Slides
-## [ Background ]
-<span style="font-size:0.6em; color:gray">Press Down key for examples.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Image-Slides#background) for details.</span>
-
-@fa[arrow-down]
-
-+++
-@title[Bold Statements]
-
-#### Make A Bold Visual Statement
-
-<br>
-
-Use high-resolution background images   
-for *maximum impact*.
-
-+++?image=https://d1z75bzl1vljy2.cloudfront.net/kitchen-sink/victory.jpg
-@title[V For Victory]
-
-+++?image=https://d1z75bzl1vljy2.cloudfront.net/kitchen-sink/127.jpg
-@title[127.0.0.1]
-
----
-@title[Embed Video]
-## Video Slides
-## [ Inline ]
-<span style="font-size:0.6em; color:gray">Press Down key for examples.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Video-Slides) for details.</span>
-
-@fa[arrow-down]
-
-+++
-@title[YouTube, etc]
-
-#### Bring Your Presentations Alive
-
-<br>
-
-Embed *YouTube*, *Vimeo*, *MP4* and *WebM*   
-inline on any slide.
-
-+++
-@title[Fresh Guacamole]
-
-![YouTube Video](https://www.youtube.com/embed/dNJdJIwCF_Y)
-
-+++
-@title[Gravity]
-
-![Vimeo Video](https://player.vimeo.com/video/125471012)
-
-+++
-@title[Big Buck Bunny]
-
-![MP4 Video](http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4)
-
-
----
-@title[Background Videos]
-
-## Video Slides
-## [ Background ]
-<span style="font-size:0.6em; color:gray">Press Down key for examples.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Video-Slides#background) for details.</span>
-
-@fa[arrow-down]
-
-+++
-@title[Viewer Experience]
-
-#### Maximize The Viewer Experience
-
-<br>
-
-Go fullscreen with *MP4* and *WebM* videos.
-
-+++?video=http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4
-@title[Big Buck Bunny]
-
----
-
-## Math Notation Slides
-<span style="font-size:0.6em; color:gray">Press Down key for examples.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Math-Notation-Slides) for details.</span>
-
-@fa[arrow-down]
-
-+++
-@title[Beautiful Math]
-
-#### Beautiful Math Rendered Beautifully
-
-<br>
-
-Use *TeX*, *LaTeX* and *MathML* markup   
-powered by [MathJax](https://www.mathjax.org).
-
-+++
-@title[Sample]
-
-`$$\sum_{i=0}^n i^2 = \frac{(n^2+n)(2n+1)}{6}$$`
-
-+++
-@title[Sample]
-
-`\begin{align}
-\dot{x} & = \sigma(y-x) \\
-\dot{y} & = \rho x - y - xz \\
-\dot{z} & = -\beta z + xy
-\end{align}`
-
-+++
-@title[Sample]
-
-##### The Cauchy-Schwarz Inequality
-
-`\[
-\left( \sum_{k=1}^n a_k b_k \right)^{\!\!2} \leq
- \left( \sum_{k=1}^n a_k^2 \right) \left( \sum_{k=1}^n b_k^2 \right)
-\]`
-
-+++
-@title[Inline Sample]
-
-##### In-line Mathematics
-
-This expression `\(\sqrt{3x-1}+(1+x)^2\)` is an example of an inline equation.
-
----
-
-## Chart Slides
-<span style="font-size:0.6em; color:gray">Press Down key for examples.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Chart-Slides) for details.</span>
-
-@fa[arrow-down]
-
-+++
-@title[Chart Types]
-
-#### Chart Data Rendered Beautifully
-
-<br>
-
-Use *Bar*, *Line*, *Area*, and *Scatter* charts among many other chart types directly within your markdown, all powered by [Chart.js](http://www.chartjs.org).
-
-+++
-@title[Sample Line Chart]
-
-<canvas data-chart="line">
-<!--
+<canvas data-chart="bar">
+<!-- 
 {
  "data": {
-  "labels": ["January"," February"," March"," April"," May"," June"," July"],
+  "labels": ["1-Core", "2-core, 2-hyperthreads"],
   "datasets": [
    {
-    "data":[65,59,80,81,56,55,40],
-    "label":"My first dataset","backgroundColor":"rgba(20,220,220,.8)"
-   },
-   {
-    "data":[28,48,40,19,86,27,90],
-    "label":"My second dataset","backgroundColor":"rgba(220,120,120,.8)"
+    "data":[16.03, 6.79],
+    "label":"mp4 ","backgroundColor":"rgba(237,101,101,.95)"
    }
   ]
  },
- "options": { "responsive": "true" }
-}
--->
-</canvas>
-
-+++
-@title[Sample Bar Chart]
-
-<canvas class="stretch" data-chart="horizontalBar">
-<!--
-{
- "data" : {
-  "labels" : ["Grapefruit", "Orange", "Kiwi",
-    "Blackberry", "Banana",
-    "Blueberry"],
-  "datasets" : [{
-    "data": [48, 26, 59, 39, 21, 74],
-    "backgroundColor": "#e49436",
-    "borderColor": "#e49436"
-  }]
-  },
-  "options": {
+ "options": { 
+    "responsive": "true",
     "title": {
       "display": true,
-      "text": "The most delicious fruit?",
+      "text": "Time to \"do some stuff\"",
       "fontColor": "gray",
       "fontSize": 20
     },
-    "legend": {
-      "display": false
-    },
     "scales": {
       "xAxes": [{
-        "ticks": {
-            "beginAtZero": true,
-            "max": 80,
-            "stepSize": 10,
-            "fontColor": "gray"
-        },
         "scaleLabel": {
           "display": true,
-          "labelString": "Respondents",
-          "fontColor": "gray"
+          "labelString": "Method"
         }
       }],
       "yAxes": [{
         "ticks": {
-            "fontColor": "gray"
+            "beginAtZero": true
+        },
+        "scaleLabel": {
+          "display": true,
+          "labelString": "Time (sec)"
         }
       }]
     }
@@ -589,132 +361,96 @@ Use *Bar*, *Line*, *Area*, and *Scatter* charts among many other chart types dir
 -->
 </canvas>
 
----
-
-## Slide Fragments
-<span style="font-size:0.6em; color:gray">Press Down key for examples.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Fragment-Slides) for details.</span>
-
-@fa[arrow-down]
-
-+++
-
-#### Reveal Slide Concepts Piecemeal
-@title[Piecemeal Concepts]
-
-<br>
-
-Step through slide content in sequence   
-to *slowly reveal* the bigger picture.
-
-+++
-@title[Piecemeal Lists]
-
-- Java
-- Groovy |
-- Kotlin |
-- Scala  |
-- The JVM rocks! |
-
-+++
-@title[Piecemeal Tables]
-
-<table>
-  <tr>
-    <th>Firstname</th>
-    <th>Lastname</th>
-    <th>Age</th>
-  </tr>
-  <tr>
-    <td>Jill</td>
-    <td>Smith</td>
-    <td>25</td>
-  </tr>
-  <tr class="fragment">
-    <td>Eve</td>
-    <td>Jackson</td>
-    <td>94</td>
-  </tr>
-  <tr class="fragment">
-    <td>John</td>
-    <td>Doe</td>
-    <td>43</td>
-  </tr>
-</table>
 
 ---
-## <span style="text-transform: none">PITCHME.yaml</span> Settings
-<span style="font-size:0.6em; color:gray">Press Down key for examples.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Slideshow-Settings) for details.</span>
+@title[Putting it all together]
+# Putting it all together
 
-@fa[arrow-down]
 
 +++
-@title[Custom Look and Feel]
+![comic-about-video-challenges](https://image.ibb.co/bK5A2z/vid_targets.jpg)
 
-#### Stamp Your Own Look and Feel
-
-<br>
-
-Set a default theme, custom logo, custom css, background image, and preferred code syntax highlighting style.
 
 +++
-@title[Custom Behavior]
+Verify results ==> 
+https://gitlab.com/rsnk96/fast-cv
 
-#### Customize Slideshow Behavior
-
-<br>
-
-Enable auto-slide with custom slide intervals, presentation looping, and RTL flow.
-
-
----
-@title[Keyboard Controls]
-## Slideshow Keyboard Controls
-<span style="font-size:0.6em; color:gray">Press Down key for examples.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Slideshow-Fullscreen-Mode) for details.</span>
-
-@fa[arrow-down]
 
 +++
-@title[Try Out Now!]
+#### More detailed review
 
-#### Try Out These Great Features Now!
 
-<br>
++++
+## Python Pipers
+@ul
+* FFmpeg - latest codecs, best compression methods with the best quality
+* Multiprocessing the `ndarray`s - lets us do it really fast
+  * How do you avoid having to write to your hard disk at all
+* Figuring out how to get the best of both worlds --> Try it out yourselves! You can check your results [here](https://gitlab.com/rsnk96/fast-cv)
+@ulend
 
-| Mode | On Key | Off Key |
-| ---- | :------: | :--------: |
-| Fullscreen | F |  Esc |
-| Overview | O |  O |
-| Blackout | B |  B |
-| Help | ? |  Esc |
+
++++
+@title[Results]
+<canvas data-chart="bar">
+<!-- 
+{
+ "data": {
+  "labels": ["1-Core", "4-VCore", "4-VCore-piped-ffmpeg","4-VCore-piped-ffmpeg-memory-ts"],
+  "datasets": [
+   {
+    "data":[16.03, 6.79, 0, 0],
+    "label":"mp4 ","backgroundColor":"rgba(237,101,101,.95)"
+   },
+   {
+    "data":[38.40, 29.16, 28.84, 29.19],
+    "label":"mp4 + H264 ","backgroundColor":"rgba(62,153,147,.9)"
+   },
+   {
+    "data":[23.40, 13.68, 13.07, 14.26],
+    "label":"mp4 + H264 (ultrafast)","backgroundColor":"rgba(31,50,55,.9)"
+   }
+  ]
+ },
+ "options": { 
+    "responsive": "true",
+    "title": {
+      "display": true,
+      "text": "Video Processing Speeds for different methods",
+      "fontColor": "gray",
+      "fontSize": 20
+    },
+    "scales": {
+      "xAxes": [{
+        "scaleLabel": {
+          "display": true,
+          "labelString": "Method"
+        }
+      }],
+      "yAxes": [{
+        "scaleLabel": {
+          "display": true,
+          "labelString": "Time (s)"
+        }
+      }]
+    }
+  }
+}
+-->
+</canvas>
+
+
+
++++?image=http://quotesideas.com/wp-content/uploads/2015/10/mMaddc0.jpg
+
+
++++
+
+@ul
+* Pipe into memory if I/O is the bottleneck and you have fast memory access rates
+* No problem in piping into I/O directly if you have an NvME SSD or any other fast I/O device
+@ulend
 
 
 ---
-
-## GitPitch Social
-<span style="font-size:0.6em; color:gray">Press Down key for examples.</span> |
-<span style="font-size:0.6em; color:gray">See [GitPitch Wiki](https://github.com/gitpitch/gitpitch/wiki/Slideshow-GitHub-Badge) for details.</span>
-
-@fa[arrow-down]
-
-+++
-@title[Designed For Sharing]
-
-#### Slideshows Designed For Sharing
-
-<br>
-
-- View any slideshow at its public URL
-- [Promote](https://github.com/gitpitch/gitpitch/wiki/Slideshow-GitHub-Badge) any slideshow using a GitHub badge
-- [Embed](https://github.com/gitpitch/gitpitch/wiki/Slideshow-Embedding) any slideshow within a blog or website
-- [Share](https://github.com/gitpitch/gitpitch/wiki/Slideshow-Sharing) any slideshow on Twitter, LinkedIn, etc
-- [Print](https://github.com/gitpitch/gitpitch/wiki/Slideshow-Printing) any slideshow as a PDF document
-- [Download and present](https://github.com/gitpitch/gitpitch/wiki/Slideshow-Offline) any slideshow offline
-
----
-@title[Get The Word Out!]
-
-## GO FOR IT.
-## JUST ADD <span style="color:#e49436; text-transform: none">PITCHME.md</span> ;)
+## Thank You!
