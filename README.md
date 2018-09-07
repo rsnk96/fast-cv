@@ -18,3 +18,6 @@ To run the tests on a video of your choice, run
 
 For bare basic video writing, we can see a speed up of **2.35x** (from 16 to 6 seconds)
 ![results](results.png)
+
+## Presentation
+The gitpitch presentation also in this repository only covers the methods in `2-multiproc_cv.py`. The files indexed `3-...` and `4-...` combine piping of ffmpeg with the  discussed multiprocessing methods
