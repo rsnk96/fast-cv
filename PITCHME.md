@@ -3,7 +3,7 @@
 ## Efficient Video Processing
 
 @size[0.5](_R S Nikhil Krishna_)
-
+@size[0.5]( @rsnk96 )
 
 ---
 @transition[fade-out]
@@ -372,11 +372,6 @@ Note:
 
 
 +++
-Verify results ==> 
-https://gitlab.com/rsnk96/fast-cv
-
-
-+++
 #### More detailed review
 
 
@@ -385,8 +380,8 @@ https://gitlab.com/rsnk96/fast-cv
 @ul
 * FFmpeg - latest codecs, best compression methods with the best quality
 * Multiprocessing the `ndarray`s - lets us do it really fast
-  * How do you avoid having to write to your hard disk at all
-* Figuring out how to get the best of both worlds --> Try it out yourselves! You can check your results [here](https://gitlab.com/rsnk96/fast-cv)
+  * How to avoid having to write to hard disk?
+* Figuring out how to get the best of both worlds --> Try it out yourselves! You can check your results [here](https://github.com/rsnk96/fast-cv)
 @ulend
 
 
