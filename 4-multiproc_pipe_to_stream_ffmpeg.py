@@ -4,6 +4,7 @@ import sys
 import time
 import psutil
 import argparse
+import numpy as np
 import subprocess as sp
 import multiprocessing as mp
 
@@ -21,11 +22,7 @@ def process_video(group_number):
         ret, frame = cap.read()
         if ret == False:
             break
-        frame[: height // 2, : width // 2, 1:] = 0
-        frame[: height // 2, width // 2 :, [2, 0]] = 0
-        frame[height // 2 :, width // 2 :, :2] = 0
-        # print('{} '.format(cap.get(cv2.CAP_PROP_POS_FRAMES)))
-        pipe.stdin.write(frame.tobytes())
+        pipe.stdin.write(cv2.filter2D(frame, -1, kernel).tobytes())
         pipe.stdin.flush()
         # print('test', group_number)
         proc_frames += 1
@@ -37,13 +34,14 @@ def process_video(group_number):
 
 
 if __name__ == "__main__":
-    start_time = time.time()
+    kernel = np.ones((5,5),np.float32)/25
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_file", default="Kiiara.mp4", type=str)
     parser.add_argument("--extra_flags", default="", type=str)
     args = parser.parse_args()
     num_processes = mp.cpu_count()
 
+    start_time = time.time()
     cap = cv2.VideoCapture(args.input_file)
     frame_jump_unit = cap.get(cv2.CAP_PROP_FRAME_COUNT) // num_processes
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))

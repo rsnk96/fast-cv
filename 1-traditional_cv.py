@@ -5,7 +5,28 @@ import argparse
 import numpy as np
 from subprocess import Popen
 
+
+def process_video():
+    cap = cv2.VideoCapture(args.input_file)
+    out = cv2.VideoWriter(
+        "output_method1.avi",
+        cv2.VideoWriter_fourcc(*"MJPG"),
+        cap.get(cv2.CAP_PROP_FPS),
+        (width, height),
+    )
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if ret == False:
+            break
+        out.write(cv2.filter2D(frame, -1, kernel))
+
+    cap.release()
+    out.release()
+    return None
+
+
 if __name__ == "__main__":
+    kernel = np.ones((5,5),np.float32)/25
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_file", default="Kiiara.mp4", type=str)
     parser.add_argument("--x264", default=False, type=bool)
@@ -19,24 +40,8 @@ if __name__ == "__main__":
         int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
         cap.get(cv2.CAP_PROP_FRAME_COUNT),
     )
-    out = cv2.VideoWriter(
-        "output_method1.avi",
-        cv2.VideoWriter_fourcc(*"MJPG"),
-        cap.get(cv2.CAP_PROP_FPS),
-        (width, height),
-    )
-
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if ret == False:
-            break
-        frame[: height // 2, : width // 2, 1:] = 0
-        frame[: height // 2, width // 2 :, [2, 0]] = 0
-        frame[height // 2 :, width // 2 :, :2] = 0
-        out.write(frame)
-
-    cap.release()
-    out.release()
+    
+    process_video()
 
     if args.x264 == True:
         ffmpeg_command = "ffmpeg -y -loglevel warning -i output_method1.avi -vcodec libx264 {} output_method1.mp4".format(
