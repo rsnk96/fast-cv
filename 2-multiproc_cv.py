@@ -4,7 +4,6 @@ import time
 import argparse
 import subprocess as sp
 import multiprocessing as mp
-from docopt import docopt
 
 
 def process_video(group_number):
