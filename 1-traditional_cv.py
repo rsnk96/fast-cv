@@ -18,10 +18,7 @@ def process_video():
         ret, frame = cap.read()
         if ret == False:
             break
-        frame[: height // 2, : width // 2, 1:] = 0
-        frame[: height // 2, width // 2 :, [2, 0]] = 0
-        frame[height // 2 :, width // 2 :, :2] = 0
-        out.write(frame)
+        out.write(cv2.filter2D(frame, -1, kernel))
 
     cap.release()
     out.release()
@@ -29,6 +26,7 @@ def process_video():
 
 
 if __name__ == "__main__":
+    kernel = np.ones((5,5),np.float32)/25
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_file", default="Kiiara.mp4", type=str)
     parser.add_argument("--x264", default=False, type=bool)

@@ -2,6 +2,7 @@ import cv2
 import sys
 import time
 import argparse
+import numpy as np
 import subprocess as sp
 import multiprocessing as mp
 
@@ -19,11 +20,7 @@ def process_video(group_number):
         ret, frame = cap.read()
         if ret == False:
             break
-        # print(cap.get(cv2.CAP_PROP_POS_FRAMES))
-        frame[: height // 2, : width // 2, 1:] = 0
-        frame[: height // 2, width // 2 :, [2, 0]] = 0
-        frame[height // 2 :, width // 2 :, :2] = 0
-        pipe.stdin.write(frame.tobytes())
+        pipe.stdin.write(cv2.filter2D(frame, -1, kernel).tobytes())
         proc_frames += 1
 
     cap.release()
@@ -31,13 +28,14 @@ def process_video(group_number):
     return None
 
 if __name__ == '__main__':
-    start_time = time.time()
+    kernel = np.ones((5,5),np.float32)/25
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_file", default="Kiiara.mp4", type=str)
     parser.add_argument("--part_extension", choices=["mp4", "ts"], default="mp4")
     parser.add_argument("--extra_flags", default="", type=str)
     args = parser.parse_args()
 
+    start_time = time.time()
     num_processes = mp.cpu_count()
     cap = cv2.VideoCapture(args.input_file)
     frame_jump_unit = cap.get(cv2.CAP_PROP_FRAME_COUNT) // num_processes
@@ -87,6 +85,7 @@ if __name__ == '__main__':
 
     for f in transport_streams:
         remove(f)
+    remove("intermediate_files.txt")
 
     print(
         "Method {}: Input:{}, Part_extension:{}, extra_flags:{}, Time taken: {}".format(
