@@ -28,7 +28,7 @@ def process_video(group_number):
     return None
 
 if __name__ == '__main__':
-    kernel = np.ones((5,5),np.float32)/25
+    kernel = np.ones((7,7),np.float32)/49
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_file", default="Kiiara.mp4", type=str)
     parser.add_argument("--part_extension", choices=["mp4", "ts"], default="mp4")

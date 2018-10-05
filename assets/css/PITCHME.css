@@ -1,3 +1,12 @@
+.headline {
+  color: white;
+  width: 80%;
+  font-weight: bold;
+  font-size: 2em !important;
+  font-variant: small-caps !important;
+}
+
+
 .reveal pre {
   width: 120%;
   margin-left: -10%;
@@ -13,10 +22,18 @@
 }
 
 .reveal div.left {
-  float: left; z-index: -10; width: 45%;
+  float: left; z-index: -10; width: 50%;
 }
 .reveal div.right {
-  float: right; z-index: -10; width: 55%;
+  float: right; z-index: -10; width: 50%;
+}
+
+.reveal div.img_top {
+  z-index: -10; height: 10%;
+}
+
+.reveal div.img_bottom {
+  z-index: -10; height: 90%;
 }
 
 .white { color : #eeeeee; }

@@ -3,3 +3,4 @@ mathjax : TeX-MML-AM_HTMLorMML-full
 theme: beige
 theme-override : assets/css/PITCHME.css
 logo : assets/cvi.png
+footnote : "Efficient Video Processing - R S Nikhil Krishna and Lokesh Kumar T" 
