@@ -220,6 +220,10 @@ Note:
 
 +++?image=https://media.giphy.com/media/2lh9grOpTCXnaP3zgw/giphy.gif
 
+Note:
+* take 10k frames as base
+
+
 +++
 ### CV - The normal way
 ```python
@@ -274,7 +278,7 @@ Note:
 
 
 +++
-The `# ... do some stuff ...` :
+The `# ... DO SOME STUFF ...` :
 <div class="left">
 ![original-image](https://image.ibb.co/gvZmTe/normal.png)
 </div>
@@ -374,22 +378,6 @@ Intra-Frame Parallelization
 
 
 +++
-## GPU Memory Systems - Global Memory
-
-@ul
-* "Main" memory of the GPU
-* Resides in the  device
-@ulend
-
-
-+++?image=https://cvw.cac.cornell.edu/gpu/images/figure6.png&size=auto 70%
-@transition[none]
-@snap[north]
-GPU Memory Systems
-@snapend
-
-
-+++
 ## Program flow
 
 ![cuda-program-flow](https://www.researchgate.net/profile/Sorin_Zoican/publication/280038347/figure/fig3/AS:284600480878607@1444865450557/CUDA-program-flow.png)
@@ -412,7 +400,17 @@ def image_conv(ip_img, kernel, op_img, channels, w, h):
 @[3](Find the global position of the thread)
 @[5](Push the kernel to constant memory for faster read and write access)
 @[7](Iterate over the batch of images)
-@[8](Do Image Convolution Stuff)
+@[8](Perform per frame processing ops)
+
+
++++
+## GPU Memory Systems
+
+@ul
+* CPU Mem Access Speeds: RAM < Cache < Register
+* GPU Mem Access Speeds: Global < Constant < Shared
+@ulend
+
 
 
 +++
@@ -467,8 +465,49 @@ for i, idx in enumerate(streams):
 @[8-10](Do the require computation with **stream=i**)
 
 +++
-# Results - GPU
+@title[Results - GPU]
+<canvas data-chart="bar">
+<!-- 
+{
 
+ "data": {
+  "labels": ["1-Core", "2-core, 2-threads", "384 Cuda Cores, 4GB Global Memory"],
+  "datasets": [
+   {
+    "data":[26.43, 12.87, 5.49],
+    "label":"mp4 ","backgroundColor":"rgba(237,101,101,.95)"
+   }
+  ]
+ },
+ "options": { 
+    "responsive": "true",
+    "title": {
+      "display": true,
+      "text": "Time to \"do some stuff\"",
+      "fontColor": "gray",
+      "fontSize": 20
+    },
+    "scales": {
+      "xAxes": [{
+        "scaleLabel": {
+          "display": true,
+          "labelString": "Method"
+        }
+      }],
+      "yAxes": [{
+        "ticks": {
+            "beginAtZero": true
+        },
+        "scaleLabel": {
+          "display": true,
+          "labelString": "Time (sec)"
+        }
+      }]
+    }
+  }
+}
+-->
+</canvas>
 
 
 ---
