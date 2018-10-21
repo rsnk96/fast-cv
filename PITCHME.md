@@ -250,6 +250,7 @@ Note:
     while proc_frames < frame_jump:
       ret, frame = cap.read()
       # ... DO SOME STUFF TO frame ... #
+      proc_frames += 1
       out.write(frame)
     return None
 
