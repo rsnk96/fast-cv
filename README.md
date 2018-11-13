@@ -16,7 +16,9 @@ To run the tests on a video of your choice, run
 
 ## Results
 
-For bare basic video writing, we can see a speed up of **2.35x** (from 16 to 6 seconds)
+For a simple task like colour separation, we can see a speed up of **6.18x** with 6 cores (on an i7-8700) and **2.35x** (from 16 to 6 seconds on i5-4210U) with 2 cores
+
+![results-6-core](results_i7-8700.png)
 ![results](results.png)
 
 ## Presentation
